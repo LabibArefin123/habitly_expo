@@ -11,6 +11,11 @@ import {
   toggleHabit,
 } from "../database/habit_queries";
 
+import {
+  cancelHabitReminder,
+  scheduleHabitReminder,
+} from "../services/notification_service";
+
 export function useHabits() {
   const db = useSQLiteContext();
 
@@ -29,16 +34,33 @@ export function useHabits() {
   }, [refreshHabits]);
 
   const addHabit = async (data: HabitFormData) => {
-    await createHabit(db, data);
+    const habitId = await createHabit(db, data);
+
+    if (data.reminderEnabled) {
+      try {
+        await scheduleHabitReminder(db, habitId);
+      } catch (error) {
+        console.error("Unable to schedule habit reminder:", error);
+      }
+    }
+
     await refreshHabits();
   };
 
   const editHabit = async (id: number, data: HabitFormData) => {
     await updateHabit(db, id, data);
+
+    try {
+      await scheduleHabitReminder(db, id);
+    } catch (error) {
+      console.error("Unable to update habit reminder:", error);
+    }
+
     await refreshHabits();
   };
 
   const removeHabit = async (id: number) => {
+    await cancelHabitReminder(db, id);
     await deleteHabit(db, id);
     await refreshHabits();
   };

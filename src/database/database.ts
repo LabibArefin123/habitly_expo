@@ -5,6 +5,7 @@ export async function initializeDatabase(
 ): Promise<void> {
   await db.execAsync(`
     PRAGMA journal_mode = WAL;
+    PRAGMA foreign_keys = ON;
 
     CREATE TABLE IF NOT EXISTS habits (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -23,8 +24,7 @@ export async function initializeDatabase(
       habit_id INTEGER NOT NULL,
       completion_date TEXT NOT NULL,
       completed_at TEXT DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (habit_id)
-        REFERENCES habits(id) ON DELETE CASCADE,
+      FOREIGN KEY (habit_id) REFERENCES habits(id) ON DELETE CASCADE,
       UNIQUE(habit_id, completion_date)
     );
 
@@ -33,9 +33,11 @@ export async function initializeDatabase(
       setting_key TEXT NOT NULL UNIQUE,
       setting_value TEXT NOT NULL
     );
-  `);
 
-  await db.execAsync(`
-    PRAGMA foreign_keys = ON;
+    CREATE TABLE IF NOT EXISTS habit_reminders (
+      habit_id INTEGER PRIMARY KEY,
+      notification_id TEXT NOT NULL,
+      FOREIGN KEY (habit_id) REFERENCES habits(id) ON DELETE CASCADE
+    );
   `);
 }
