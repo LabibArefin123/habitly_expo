@@ -1,20 +1,24 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StatusBar } from "expo-status-bar";
+import { SQLiteProvider } from "expo-sqlite";
+import { StyleSheet } from "react-native";
+import {SafeAreaView} from "react-native-safe-area-context";
+import { HomeScreen } from "../habitly/src/screens/home_screen";
+import { initializeDatabase } from "../habitly/src/database/database";
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <SQLiteProvider databaseName="habitly.db" onInit={initializeDatabase}>
+      <SafeAreaView style={styles.container}>
+        <StatusBar style="dark" />
+        <HomeScreen />
+      </SafeAreaView>
+    </SQLiteProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#F7F8FC",
   },
 });
