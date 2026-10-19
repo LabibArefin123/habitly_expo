@@ -4,7 +4,6 @@ import { Alert, StyleSheet, View } from "react-native";
 import { COLORS } from "../constants/theme";
 import { useHabits } from "../hooks/use_habits";
 import { useStatistics } from "../hooks/use_statistics";
-import { useNotifications } from "../hooks/use_notifications";
 
 import { HabitFormModal } from "../components/habits/habit_form_modal";
 import { HomeHeader } from "../components/home/home_header";
@@ -15,8 +14,6 @@ import { HomeMotivation } from "../components/home/home_motivation";
 import type { Habit, HabitFormData } from "../types/habit.types";
 
 export function HomeScreen() {
-  useNotifications();
-
   const { habits, loading, addHabit, editHabit, removeHabit, completeHabit } =
     useHabits();
 
@@ -98,13 +95,9 @@ export function HomeScreen() {
     );
   };
 
-  const handleToggle = async (id: number) => {
-    try {
-      await completeHabit(id);
-    } catch (error) {
-      console.error("Unable to update habit:", error);
-      Alert.alert("Error", "Unable to update habit completion.");
-    }
+  const handleToggle = async (id: number): Promise<void> => {
+    await completeHabit(id);
+    await refreshStatistics();
   };
 
   return (
