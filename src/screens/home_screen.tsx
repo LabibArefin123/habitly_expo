@@ -95,7 +95,6 @@ export function HomeScreen() {
     );
   };
  
-  
   const handleToggle = async (id: number): Promise<void> => {
     await completeHabit(id);
     await refreshStatistics();
