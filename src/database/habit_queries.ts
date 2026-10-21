@@ -1,6 +1,9 @@
-
 import type { SQLiteDatabase } from "expo-sqlite";
-import type { Habit, HabitFormData } from "../types/habit.types";
+
+import type {
+  Habit,
+  HabitFormData,
+} from "../types/habit.types";
 
 // Get local date in YYYY-MM-DD format.
 export function getLocalDate(date = new Date()): string {
@@ -27,7 +30,7 @@ function getLocalDateTime(): string {
 
 // Get all habits with today's completion status.
 export async function getHabits(
-  db: SQLiteDatabase
+  db: SQLiteDatabase,
 ): Promise<Habit[]> {
   const today = getLocalDate();
 
@@ -43,14 +46,14 @@ export async function getHabits(
       ON l.habit_id = h.id
       AND l.completion_date = ?
     ORDER BY h.id DESC`,
-    today
+    today,
   );
 }
 
 // Create a new habit.
 export async function createHabit(
   db: SQLiteDatabase,
-  data: HabitFormData
+  data: HabitFormData,
 ): Promise<number> {
   const result = await db.runAsync(
     `INSERT INTO habits (
@@ -58,19 +61,21 @@ export async function createHabit(
       description,
       icon,
       color,
+      category,
       reminder_enabled,
       reminder_hour,
       reminder_minute,
       created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     data.title.trim(),
     data.description.trim(),
     data.icon,
     data.color,
+    data.category,
     data.reminderEnabled ? 1 : 0,
     data.reminderHour,
     data.reminderMinute,
-    getLocalDateTime()
+    getLocalDateTime(),
   );
 
   return result.lastInsertRowId;
@@ -80,7 +85,7 @@ export async function createHabit(
 export async function updateHabit(
   db: SQLiteDatabase,
   id: number,
-  data: HabitFormData
+  data: HabitFormData,
 ): Promise<void> {
   await db.runAsync(
     `UPDATE habits SET
@@ -88,6 +93,7 @@ export async function updateHabit(
       description = ?,
       icon = ?,
       color = ?,
+      category = ?,
       reminder_enabled = ?,
       reminder_hour = ?,
       reminder_minute = ?
@@ -96,27 +102,28 @@ export async function updateHabit(
     data.description.trim(),
     data.icon,
     data.color,
+    data.category,
     data.reminderEnabled ? 1 : 0,
     data.reminderHour,
     data.reminderMinute,
-    id
+    id,
   );
 }
 
 // Delete a habit and its completion history.
 export async function deleteHabit(
   db: SQLiteDatabase,
-  id: number
+  id: number,
 ): Promise<void> {
   await db.withTransactionAsync(async () => {
     await db.runAsync(
       "DELETE FROM habit_logs WHERE habit_id = ?",
-      id
+      id,
     );
 
     await db.runAsync(
       "DELETE FROM habits WHERE id = ?",
-      id
+      id,
     );
   });
 }
@@ -124,7 +131,7 @@ export async function deleteHabit(
 // Toggle today's habit completion.
 export async function toggleHabit(
   db: SQLiteDatabase,
-  id: number
+  id: number,
 ): Promise<void> {
   const today = getLocalDate();
 
@@ -135,7 +142,7 @@ export async function toggleHabit(
        WHERE habit_id = ?
        AND completion_date = ?`,
       id,
-      today
+      today,
     );
 
     if (existing) {
@@ -144,7 +151,7 @@ export async function toggleHabit(
          WHERE habit_id = ?
          AND completion_date = ?`,
         id,
-        today
+        today,
       );
     } else {
       await db.runAsync(
@@ -153,7 +160,7 @@ export async function toggleHabit(
           completion_date
         ) VALUES (?, ?)`,
         id,
-        today
+        today,
       );
     }
   });
@@ -163,7 +170,7 @@ export async function toggleHabit(
 export async function isHabitCompleted(
   db: SQLiteDatabase,
   habitId: number,
-  date = getLocalDate()
+  date = getLocalDate(),
 ): Promise<boolean> {
   const result = await db.getFirstAsync<{ id: number }>(
     `SELECT id
@@ -171,7 +178,7 @@ export async function isHabitCompleted(
      WHERE habit_id = ?
      AND completion_date = ?`,
     habitId,
-    date
+    date,
   );
 
   return Boolean(result);

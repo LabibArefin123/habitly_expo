@@ -1,7 +1,7 @@
 import type { SQLiteDatabase } from "expo-sqlite";
 
 export async function initializeDatabase(
-  db: SQLiteDatabase
+  db: SQLiteDatabase,
 ): Promise<void> {
   await db.execAsync(`
     PRAGMA journal_mode = WAL;
@@ -39,5 +39,29 @@ export async function initializeDatabase(
       notification_id TEXT NOT NULL,
       FOREIGN KEY (habit_id) REFERENCES habits(id) ON DELETE CASCADE
     );
+  `);
+
+  // Check whether the category column already exists.
+  const columns = await db.getAllAsync<{ name: string }>(
+    "PRAGMA table_info(habits)",
+  );
+
+  const hasCategoryColumn = columns.some(
+    (column) => column.name === "category",
+  );
+
+  // Add the column only once.
+  if (!hasCategoryColumn) {
+    await db.execAsync(`
+      ALTER TABLE habits
+      ADD COLUMN category TEXT NOT NULL DEFAULT 'Personal';
+    `);
+  }
+
+  // Normalize any empty or NULL category values.
+  await db.runAsync(`
+    UPDATE habits
+    SET category = 'Personal'
+    WHERE category IS NULL OR TRIM(category) = '';
   `);
 }
