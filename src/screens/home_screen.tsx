@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, StyleSheet, View } from "react-native";
+import { Alert, Pressable, ScrollView, Text, View } from "react-native";
 
-import { COLORS } from "../constants/theme";
 import { useHabits } from "../hooks/use_habits";
 import { useStatistics } from "../hooks/use_statistics";
 
@@ -10,6 +9,8 @@ import { HomeHeader } from "../components/home/home_header";
 import { HomeStatistics } from "../components/home/home_statistics";
 import { HomeHabitsSection } from "../components/home/home_habits_section";
 import { HomeMotivation } from "../components/home/home_motivation";
+
+import { homeStyles as styles } from "../styles/home.styles";
 
 import type { Habit, HabitFormData } from "../types/habit.types";
 
@@ -25,9 +26,7 @@ export function HomeScreen() {
 
   useEffect(() => {
     if (!loading) {
-      refreshStatistics().catch((error) => {
-        console.error("Unable to refresh statistics:", error);
-      });
+      refreshStatistics().catch(console.error);
     }
   }, [habits, loading, refreshStatistics]);
 
@@ -65,7 +64,7 @@ export function HomeScreen() {
       closeModal();
     } catch (error) {
       console.error("Unable to save habit:", error);
-      Alert.alert("Error", "Unable to save your habit. Please try again.");
+      Alert.alert("Error", "Unable to save your habit.");
       throw error;
     }
   };
@@ -75,18 +74,16 @@ export function HomeScreen() {
       "Delete Habit",
       `Are you sure you want to delete "${habit.title}"?`,
       [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
+        { text: "Cancel", style: "cancel" },
         {
           text: "Delete",
           style: "destructive",
           onPress: async () => {
             try {
               await removeHabit(habit.id);
+              await refreshStatistics();
             } catch (error) {
-              console.error("Unable to delete habit:", error);
+              console.error(error);
               Alert.alert("Error", "Unable to delete this habit.");
             }
           },
@@ -94,31 +91,57 @@ export function HomeScreen() {
       ],
     );
   };
- 
-  const handleToggle = async (id: number): Promise<void> => {
-    await completeHabit(id);
-    await refreshStatistics();
+
+  const handleToggle = async (id: number) => {
+    try {
+      await completeHabit(id);
+      await refreshStatistics();
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "Unable to update habit.");
+    }
   };
 
   return (
     <View style={styles.container}>
-      <HomeHeader />
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <HomeHeader />
 
-      <HomeStatistics statistics={statistics} weeklyProgress={weeklyProgress} />
+        <HomeStatistics
+          statistics={statistics}
+          weeklyProgress={weeklyProgress}
+        />
 
-      <HomeHabitsSection
-        habits={habits}
-        loading={loading}
-        completedToday={statistics.completedToday}
-        totalHabits={statistics.totalHabits}
-        streakMap={streakMap}
-        onAdd={openAddModal}
-        onToggle={handleToggle}
-        onEdit={openEditModal}
-        onDelete={handleDelete}
-      />
+        <HomeHabitsSection
+          habits={habits}
+          loading={loading}
+          completedToday={statistics.completedToday}
+          totalHabits={habits.length}
+          streakMap={streakMap}
+          onAdd={openAddModal}
+          onToggle={handleToggle}
+          onEdit={openEditModal}
+          onDelete={handleDelete}
+        />
 
-      <HomeMotivation />
+        <HomeMotivation />
+      </ScrollView>
+
+      {/* Always accessible Add Habit button */}
+      <Pressable
+        style={styles.floatingAddButton}
+        onPress={openAddModal}
+        accessibilityRole="button"
+        accessibilityLabel="Add a new habit"
+      >
+        <Text style={styles.floatingAddIcon}>+</Text>
+        <Text style={styles.floatingAddText}>Add Habit</Text>
+      </Pressable>
 
       <HabitFormModal
         visible={modalVisible}
@@ -129,12 +152,3 @@ export function HomeScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
-});

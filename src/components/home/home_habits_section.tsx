@@ -1,7 +1,7 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 
-import { COLORS } from "../../constants/theme";
 import { HabitCard } from "../habits/habit_card";
+import { homeStyles as styles } from "../../styles/home.styles";
 
 import type { Habit } from "../../types/habit.types";
 
@@ -31,7 +31,7 @@ export function HomeHabitsSection({
   const remaining = Math.max(0, totalHabits - completedToday);
 
   return (
-    <View style={styles.container}>
+    <View style={styles.habitsContainer}>
       <View style={styles.sectionHeader}>
         <View style={styles.headingContainer}>
           <Text style={styles.sectionTitle}>Today's Habits</Text>
@@ -45,7 +45,6 @@ export function HomeHabitsSection({
           onPress={onAdd}
           style={styles.addButton}
           accessibilityRole="button"
-          accessibilityLabel="Add a new habit"
         >
           <Text style={styles.addButtonText}>+ Add Habit</Text>
         </Pressable>
@@ -72,7 +71,7 @@ export function HomeHabitsSection({
           </Pressable>
         </View>
       ) : (
-        <ScrollView scrollEnabled={false} showsVerticalScrollIndicator={false}>
+        <View>
           {habits.map((habit) => (
             <HabitCard
               key={habit.id}
@@ -83,78 +82,8 @@ export function HomeHabitsSection({
               onDelete={() => onDelete(habit)}
             />
           ))}
-        </ScrollView>
+        </View>
       )}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 28,
-  },
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 16,
-  },
-  headingContainer: {
-    flex: 1,
-  },
-  sectionTitle: {
-    color: COLORS.text,
-    fontSize: 19,
-    fontWeight: "800",
-  },
-  sectionSubtitle: {
-    color: COLORS.muted,
-    fontSize: 11,
-    marginTop: 5,
-  },
-  addButton: {
-    backgroundColor: COLORS.primaryLight,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 12,
-    marginLeft: 8,
-  },
-  addButtonText: {
-    color: COLORS.primary,
-    fontSize: 12,
-    fontWeight: "800",
-  },
-  emptyState: {
-    backgroundColor: COLORS.white,
-    borderRadius: 22,
-    padding: 25,
-    alignItems: "center",
-  },
-  emptyIcon: {
-    fontSize: 42,
-  },
-  emptyTitle: {
-    color: COLORS.text,
-    fontSize: 17,
-    fontWeight: "800",
-    marginTop: 15,
-  },
-  emptyText: {
-    color: COLORS.muted,
-    fontSize: 12,
-    textAlign: "center",
-    marginTop: 9,
-    lineHeight: 19,
-  },
-  createButton: {
-    backgroundColor: COLORS.primary,
-    padding: 14,
-    borderRadius: 12,
-    marginTop: 18,
-  },
-  createButtonText: {
-    color: COLORS.white,
-    fontWeight: "800",
-    fontSize: 12,
-  },
-});
