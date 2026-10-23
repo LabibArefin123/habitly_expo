@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Pressable, ScrollView, Text, View } from "react-native";
+import { Alert, Modal, Pressable, ScrollView, Text, View } from "react-native";
 
 import { useHabits } from "../hooks/use_habits";
 import { useStatistics } from "../hooks/use_statistics";
@@ -9,6 +9,8 @@ import { HomeHeader } from "../components/home/home_header";
 import { HomeStatistics } from "../components/home/home_statistics";
 import { HomeHabitsSection } from "../components/home/home_habits_section";
 import { HomeMotivation } from "../components/home/home_motivation";
+
+import { ProfileScreen } from "./profile";
 
 import { homeStyles as styles } from "../styles/home.styles";
 
@@ -22,6 +24,7 @@ export function HomeScreen() {
     useStatistics();
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [profileVisible, setProfileVisible] = useState(false);
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
 
   useEffect(() => {
@@ -38,11 +41,22 @@ export function HomeScreen() {
     [habitStreaks],
   );
 
+  // Profile modal
+  const openProfile = () => {
+    setProfileVisible(true);
+  };
+
+  const closeProfile = () => {
+    setProfileVisible(false);
+  };
+
+  // Add habit
   const openAddModal = () => {
     setSelectedHabit(null);
     setModalVisible(true);
   };
 
+  // Edit habit
   const openEditModal = (habit: Habit) => {
     setSelectedHabit(habit);
     setModalVisible(true);
@@ -53,6 +67,7 @@ export function HomeScreen() {
     setSelectedHabit(null);
   };
 
+  // Save habit
   const handleSave = async (data: HabitFormData) => {
     try {
       if (selectedHabit) {
@@ -69,12 +84,16 @@ export function HomeScreen() {
     }
   };
 
+  // Delete habit
   const handleDelete = (habit: Habit) => {
     Alert.alert(
       "Delete Habit",
       `Are you sure you want to delete "${habit.title}"?`,
       [
-        { text: "Cancel", style: "cancel" },
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
         {
           text: "Delete",
           style: "destructive",
@@ -92,6 +111,7 @@ export function HomeScreen() {
     );
   };
 
+  // Complete habit
   const handleToggle = async (id: number) => {
     try {
       await completeHabit(id);
@@ -110,7 +130,8 @@ export function HomeScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <HomeHeader />
+        {/* Home header with clickable L avatar */}
+        <HomeHeader onProfilePress={openProfile} />
 
         <HomeStatistics
           statistics={statistics}
@@ -132,7 +153,7 @@ export function HomeScreen() {
         <HomeMotivation />
       </ScrollView>
 
-      {/* Always accessible Add Habit button */}
+      {/* Floating Add Habit button */}
       <Pressable
         style={styles.floatingAddButton}
         onPress={openAddModal}
@@ -143,12 +164,26 @@ export function HomeScreen() {
         <Text style={styles.floatingAddText}>Add Habit</Text>
       </Pressable>
 
+      {/* Add/Edit Habit Modal */}
       <HabitFormModal
         visible={modalVisible}
         habit={selectedHabit}
         onClose={closeModal}
         onSave={handleSave}
       />
+
+      {/* Profile Modal */}
+      <Modal
+        visible={profileVisible}
+        animationType="slide"
+        presentationStyle="fullScreen"
+        statusBarTranslucent={false}
+        onRequestClose={closeProfile}
+      >
+        <View style={{ flex: 1 }}>
+          <ProfileScreen onBack={closeProfile} />
+        </View>
+      </Modal>
     </View>
   );
 }

@@ -1,8 +1,12 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { COLORS } from "../../constants/theme";
 
-export function HomeHeader() {
+type HomeHeaderProps = {
+  onProfilePress: () => void;
+};
+
+export function HomeHeader({ onProfilePress }: HomeHeaderProps) {
   const today = new Intl.DateTimeFormat("en-US", {
     weekday: "long",
     month: "long",
@@ -18,9 +22,14 @@ export function HomeHeader() {
           <Text style={styles.subtitle}>Build better habits every day.</Text>
         </View>
 
-        <View style={styles.avatar}>
+        <Pressable
+          style={styles.avatar}
+          onPress={onProfilePress}
+          accessibilityRole="button"
+          accessibilityLabel="Open profile"
+        >
           <Text style={styles.avatarText}>L</Text>
-        </View>
+        </Pressable>
       </View>
 
       <Text style={styles.date}>{today}</Text>

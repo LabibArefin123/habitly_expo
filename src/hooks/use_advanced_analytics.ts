@@ -41,14 +41,19 @@ export function useAdvancedAnalytics() {
 
   useEffect(() => { refresh().catch(console.error); }, [refresh]);
 
-  const changeMonth = (direction: -1 | 1) => {
-    const date = new Date(year, month - 1 + direction, 1);
-    setYear(date.getFullYear());
-    setMonth(date.getMonth() + 1);
-    setSelectedDate(
-      `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-01`
-    );
-  };
+ 
+const changeMonth = (amount: number) => {
+  const date = new Date(year, month - 1 + amount, 1);
+
+  setYear(date.getFullYear());
+  setMonth(date.getMonth() + 1);
+
+  setSelectedDate(
+    `${date.getFullYear()}-${String(
+      date.getMonth() + 1
+    ).padStart(2, "0")}-01`
+  );
+};
 
   const selectDate = async (date: string) => {
     setSelectedDate(date);

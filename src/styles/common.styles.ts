@@ -45,10 +45,21 @@ export const appStyles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
+
   screen: {
     flex: 1,
     minHeight: 0,
   },
+
+  tabScreen: {
+    flex: 1,
+    minHeight: 0,
+  },
+
+  hiddenTabScreen: {
+    display: "none",
+  },
+
   bottomNavigation: {
     flexDirection: "row",
     alignItems: "center",
@@ -58,24 +69,30 @@ export const appStyles = StyleSheet.create({
     borderTopColor: COLORS.border,
     paddingTop: 10,
     paddingBottom: 6,
+    zIndex: 10,
+    elevation: 5,
   },
+
   tabButton: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 5,
+    paddingVertical: 8,
     gap: 3,
   },
+
   tabIcon: {
     color: COLORS.muted,
     fontSize: 23,
     fontWeight: "700",
   },
+
   tabLabel: {
     color: COLORS.muted,
     fontSize: 10,
     fontWeight: "700",
   },
+
   activeTabText: {
     color: COLORS.primary,
   },

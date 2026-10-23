@@ -1,4 +1,7 @@
+
 import type { SQLiteDatabase } from "expo-sqlite";
+
+import { seedHabitData } from "./seeders/habit_seeder";
 
 export async function initializeDatabase(
   db: SQLiteDatabase,
@@ -41,7 +44,7 @@ export async function initializeDatabase(
     );
   `);
 
-  // Check whether the category column already exists.
+  // Check existing columns.
   const columns = await db.getAllAsync<{ name: string }>(
     "PRAGMA table_info(habits)",
   );
@@ -50,7 +53,7 @@ export async function initializeDatabase(
     (column) => column.name === "category",
   );
 
-  // Add the column only once.
+  // Add category for existing databases.
   if (!hasCategoryColumn) {
     await db.execAsync(`
       ALTER TABLE habits
@@ -58,10 +61,13 @@ export async function initializeDatabase(
     `);
   }
 
-  // Normalize any empty or NULL category values.
+  // Normalize empty category values.
   await db.runAsync(`
     UPDATE habits
     SET category = 'Personal'
     WHERE category IS NULL OR TRIM(category) = '';
   `);
+
+  // Seed after tables and migrations are ready.
+  await seedHabitData(db);
 }
