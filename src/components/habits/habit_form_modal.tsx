@@ -11,7 +11,6 @@ import {
 } from "react-native";
 
 import { COLORS } from "../../constants/theme";
-
 import {
   HABIT_CATEGORIES,
   type Habit,
