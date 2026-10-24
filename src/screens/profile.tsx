@@ -3,13 +3,12 @@ import {
   ActivityIndicator,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   View,
 } from "react-native";
 import { useSQLiteContext } from "expo-sqlite";
 
-import { COLORS } from "../constants/theme";
+import { styles } from "../styles/profile.styles";
 
 interface Props {
   onBack: () => void;
@@ -19,6 +18,13 @@ interface ProfileStats {
   totalHabits: number;
   totalCompletions: number;
   activeDays: number;
+}
+
+interface InfoRowProps {
+  icon: string;
+  label: string;
+  value: string;
+  last?: boolean;
 }
 
 const INITIAL_STATS: ProfileStats = {
@@ -79,6 +85,7 @@ export function ProfileScreen({ onBack }: Props) {
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
+      {/* Header */}
       <View style={styles.header}>
         <Pressable
           onPress={onBack}
@@ -94,6 +101,7 @@ export function ProfileScreen({ onBack }: Props) {
         <View style={styles.headerSpacer} />
       </View>
 
+      {/* Profile Card */}
       <View style={styles.profileCard}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>LA</Text>
@@ -112,11 +120,12 @@ export function ProfileScreen({ onBack }: Props) {
         </View>
       </View>
 
+      {/* Progress */}
       <Text style={styles.sectionTitle}>My Progress</Text>
 
       {loading ? (
         <View style={styles.loading}>
-          <ActivityIndicator color={COLORS.primary} />
+          <ActivityIndicator color={styles.primaryColor.color} />
           <Text style={styles.loadingText}>Loading your progress...</Text>
         </View>
       ) : (
@@ -141,6 +150,7 @@ export function ProfileScreen({ onBack }: Props) {
         </View>
       )}
 
+      {/* About Me */}
       <Text style={styles.sectionTitle}>About Me</Text>
 
       <View style={styles.infoCard}>
@@ -158,6 +168,7 @@ export function ProfileScreen({ onBack }: Props) {
         />
       </View>
 
+      {/* Daily Motivation */}
       <View style={styles.quoteCard}>
         <Text style={styles.quoteIcon}>✨</Text>
 
@@ -168,18 +179,12 @@ export function ProfileScreen({ onBack }: Props) {
         </Text>
       </View>
 
+      {/* Footer */}
       <Text style={styles.footer}>
         Habitly · Build daily habits and track personal progress.
       </Text>
     </ScrollView>
   );
-}
-
-interface InfoRowProps {
-  icon: string;
-  label: string;
-  value: string;
-  last?: boolean;
 }
 
 function InfoRow({ icon, label, value, last = false }: InfoRowProps) {
@@ -196,217 +201,3 @@ function InfoRow({ icon, label, value, last = false }: InfoRowProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  content: {
-    paddingHorizontal: 20,
-    paddingBottom: 30,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 22,
-  },
-  backButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 13,
-    backgroundColor: COLORS.white,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  backIcon: {
-    fontSize: 29,
-    color: COLORS.primary,
-    fontWeight: "700",
-    marginTop: -3,
-  },
-  headerTitle: {
-    color: COLORS.text,
-    fontSize: 18,
-    fontWeight: "900",
-  },
-  headerSpacer: {
-    width: 42,
-  },
-  profileCard: {
-    backgroundColor: COLORS.white,
-    borderRadius: 23,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    padding: 25,
-    alignItems: "center",
-  },
-  avatar: {
-    width: 88,
-    height: 88,
-    borderRadius: 28,
-    backgroundColor: COLORS.primaryLight,
-    borderWidth: 2,
-    borderColor: COLORS.primary,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  avatarText: {
-    color: COLORS.primary,
-    fontSize: 27,
-    fontWeight: "900",
-  },
-  name: {
-    color: COLORS.text,
-    fontSize: 21,
-    fontWeight: "900",
-    marginTop: 17,
-    textAlign: "center",
-  },
-  profession: {
-    color: COLORS.primary,
-    fontSize: 12,
-    fontWeight: "800",
-    marginTop: 6,
-  },
-  bio: {
-    color: COLORS.muted,
-    fontSize: 12,
-    lineHeight: 19,
-    textAlign: "center",
-    marginTop: 13,
-  },
-  memberBadge: {
-    backgroundColor: COLORS.primaryLight,
-    paddingHorizontal: 13,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginTop: 17,
-  },
-  memberBadgeText: {
-    color: COLORS.primary,
-    fontSize: 9,
-    fontWeight: "900",
-    letterSpacing: 1,
-  },
-  sectionTitle: {
-    color: COLORS.text,
-    fontSize: 16,
-    fontWeight: "900",
-    marginTop: 25,
-    marginBottom: 13,
-  },
-  statsGrid: {
-    flexDirection: "row",
-    gap: 9,
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: COLORS.white,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 17,
-    paddingVertical: 16,
-    paddingHorizontal: 8,
-    alignItems: "center",
-  },
-  statIcon: {
-    fontSize: 21,
-  },
-  statValue: {
-    color: COLORS.primary,
-    fontSize: 23,
-    fontWeight: "900",
-    marginTop: 9,
-  },
-  statLabel: {
-    color: COLORS.muted,
-    fontSize: 9,
-    fontWeight: "700",
-    marginTop: 4,
-    textAlign: "center",
-  },
-  loading: {
-    padding: 25,
-    alignItems: "center",
-    backgroundColor: COLORS.white,
-    borderRadius: 17,
-  },
-  loadingText: {
-    color: COLORS.muted,
-    fontSize: 11,
-    marginTop: 9,
-  },
-  infoCard: {
-    backgroundColor: COLORS.white,
-    borderRadius: 19,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    paddingHorizontal: 15,
-  },
-  infoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-    gap: 12,
-  },
-  lastInfoRow: {
-    borderBottomWidth: 0,
-  },
-  infoIcon: {
-    width: 39,
-    height: 39,
-    borderRadius: 12,
-    backgroundColor: COLORS.background,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  infoEmoji: {
-    fontSize: 18,
-  },
-  infoContent: {
-    flex: 1,
-  },
-  infoLabel: {
-    color: COLORS.muted,
-    fontSize: 10,
-  },
-  infoValue: {
-    color: COLORS.text,
-    fontSize: 12,
-    fontWeight: "800",
-    marginTop: 4,
-  },
-  quoteCard: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 19,
-    padding: 19,
-    marginTop: 22,
-  },
-  quoteIcon: {
-    fontSize: 22,
-  },
-  quoteTitle: {
-    color: COLORS.white,
-    fontSize: 15,
-    fontWeight: "900",
-    marginTop: 10,
-  },
-  quoteDescription: {
-    color: "#E5E3FF",
-    fontSize: 11,
-    lineHeight: 18,
-    marginTop: 6,
-  },
-  footer: {
-    color: COLORS.muted,
-    fontSize: 10,
-    textAlign: "center",
-    marginTop: 25,
-  },
-});
