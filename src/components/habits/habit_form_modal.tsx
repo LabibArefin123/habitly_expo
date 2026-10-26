@@ -3,7 +3,6 @@ import {
   Modal,
   Pressable,
   ScrollView,
-  StyleSheet,
   Switch,
   Text,
   TextInput,
@@ -11,11 +10,19 @@ import {
 } from "react-native";
 
 import { COLORS } from "../../constants/theme";
+
 import {
   HABIT_CATEGORIES,
   type Habit,
   type HabitFormData,
 } from "../../types/habit.types";
+
+import {
+  habitFormInputStyles,
+  habitFormLayoutStyles,
+  habitFormOptionsStyles,
+  habitFormReminderStyles,
+} from "../../styles/habit";
 
 interface Props {
   visible: boolean;
@@ -35,6 +42,13 @@ const DEFAULT_FORM: HabitFormData = {
   reminderEnabled: false,
   reminderHour: 9,
   reminderMinute: 0,
+};
+
+const styles = {
+  ...habitFormLayoutStyles,
+  ...habitFormInputStyles,
+  ...habitFormOptionsStyles,
+  ...habitFormReminderStyles,
 };
 
 export function HabitFormModal({ visible, habit, onClose, onSave }: Props) {
@@ -83,9 +97,26 @@ export function HabitFormModal({ visible, habit, onClose, onSave }: Props) {
       });
 
       onClose();
+    } catch {
+      // Keep the modal open if saving fails.
     } finally {
       setSaving(false);
     }
+  };
+
+  const updateReminderTime = (
+    key: "reminderHour" | "reminderMinute",
+    value: string,
+  ) => {
+    const parsed = Number(value);
+    const maximum = key === "reminderHour" ? 23 : 59;
+
+    updateForm(
+      key,
+      value.trim() === ""
+        ? 0
+        : Math.min(maximum, Math.max(0, Number.isFinite(parsed) ? parsed : 0)),
+    );
   };
 
   return (
@@ -122,7 +153,6 @@ export function HabitFormModal({ visible, habit, onClose, onSave }: Props) {
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-            {/* Habit name */}
             <Text style={styles.label}>Habit Name</Text>
 
             <TextInput
@@ -135,7 +165,6 @@ export function HabitFormModal({ visible, habit, onClose, onSave }: Props) {
               returnKeyType="next"
             />
 
-            {/* Description */}
             <Text style={styles.label}>Description</Text>
 
             <TextInput
@@ -148,7 +177,6 @@ export function HabitFormModal({ visible, habit, onClose, onSave }: Props) {
               maxLength={150}
             />
 
-            {/* Category */}
             <Text style={styles.label}>Habit Category</Text>
 
             <View style={styles.categories}>
@@ -179,29 +207,27 @@ export function HabitFormModal({ visible, habit, onClose, onSave }: Props) {
               })}
             </View>
 
-            {/* Icon picker */}
             <Text style={styles.label}>Choose Icon</Text>
 
             <View style={styles.icons}>
-              {ICONS.map((icon) => (
-                <Pressable
-                  key={icon}
-                  style={[
-                    styles.iconButton,
-                    form.icon === icon && styles.selectedIcon,
-                  ]}
-                  onPress={() => updateForm("icon", icon)}
-                  accessibilityRole="button"
-                  accessibilityState={{
-                    selected: form.icon === icon,
-                  }}
-                >
-                  <Text style={styles.iconText}>{icon}</Text>
-                </Pressable>
-              ))}
+              {ICONS.map((icon) => {
+                const selected = form.icon === icon;
+
+                return (
+                  <Pressable
+                    key={icon}
+                    style={[styles.iconButton, selected && styles.selectedIcon]}
+                    onPress={() => updateForm("icon", icon)}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected }}
+                    accessibilityLabel={`Select ${icon} icon`}
+                  >
+                    <Text style={styles.iconText}>{icon}</Text>
+                  </Pressable>
+                );
+              })}
             </View>
 
-            {/* Daily reminder */}
             <View style={styles.reminderRow}>
               <View style={styles.reminderContent}>
                 <Text style={styles.reminderTitle}>Daily Reminder</Text>
@@ -222,7 +248,6 @@ export function HabitFormModal({ visible, habit, onClose, onSave }: Props) {
               />
             </View>
 
-            {/* Reminder time */}
             {form.reminderEnabled && (
               <View style={styles.timeRow}>
                 <View style={styles.timeInputWrapper}>
@@ -232,19 +257,9 @@ export function HabitFormModal({ visible, habit, onClose, onSave }: Props) {
                     style={styles.input}
                     keyboardType="number-pad"
                     value={String(form.reminderHour)}
-                    onChangeText={(value) => {
-                      const parsed = Number(value);
-
-                      updateForm(
-                        "reminderHour",
-                        value.trim() === ""
-                          ? 0
-                          : Math.min(
-                              23,
-                              Math.max(0, Number.isFinite(parsed) ? parsed : 0),
-                            ),
-                      );
-                    }}
+                    onChangeText={(value) =>
+                      updateReminderTime("reminderHour", value)
+                    }
                     maxLength={2}
                   />
                 </View>
@@ -256,26 +271,15 @@ export function HabitFormModal({ visible, habit, onClose, onSave }: Props) {
                     style={styles.input}
                     keyboardType="number-pad"
                     value={String(form.reminderMinute)}
-                    onChangeText={(value) => {
-                      const parsed = Number(value);
-
-                      updateForm(
-                        "reminderMinute",
-                        value.trim() === ""
-                          ? 0
-                          : Math.min(
-                              59,
-                              Math.max(0, Number.isFinite(parsed) ? parsed : 0),
-                            ),
-                      );
-                    }}
+                    onChangeText={(value) =>
+                      updateReminderTime("reminderMinute", value)
+                    }
                     maxLength={2}
                   />
                 </View>
               </View>
             )}
 
-            {/* Save */}
             <Pressable
               style={[
                 styles.saveButton,
@@ -283,6 +287,7 @@ export function HabitFormModal({ visible, habit, onClose, onSave }: Props) {
               ]}
               disabled={!form.title.trim() || saving}
               onPress={handleSave}
+              accessibilityRole="button"
             >
               <Text style={styles.saveText}>
                 {saving ? "Saving..." : habit ? "Update Habit" : "Create Habit"}
@@ -294,161 +299,3 @@ export function HabitFormModal({ visible, habit, onClose, onSave }: Props) {
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: "#00000066",
-    justifyContent: "flex-end",
-  },
-  modal: {
-    backgroundColor: COLORS.white,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    padding: 22,
-    maxHeight: "90%",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 15,
-  },
-  heading: {
-    color: COLORS.text,
-    fontSize: 21,
-    fontWeight: "800",
-  },
-  headerSubtitle: {
-    color: COLORS.muted,
-    fontSize: 11,
-    marginTop: 4,
-  },
-  closeButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    backgroundColor: COLORS.background,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  close: {
-    color: COLORS.muted,
-    fontSize: 18,
-    fontWeight: "700",
-  },
-  label: {
-    color: COLORS.text,
-    fontSize: 12,
-    fontWeight: "800",
-    marginBottom: 9,
-    marginTop: 17,
-  },
-  input: {
-    backgroundColor: COLORS.background,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 13,
-    paddingHorizontal: 14,
-    paddingVertical: 13,
-    color: COLORS.text,
-    fontSize: 13,
-  },
-  descriptionInput: {
-    height: 85,
-    textAlignVertical: "top",
-  },
-  categories: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-  },
-  categoryButton: {
-    paddingHorizontal: 13,
-    paddingVertical: 9,
-    borderRadius: 20,
-    backgroundColor: COLORS.background,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  selectedCategory: {
-    backgroundColor: COLORS.primaryLight,
-    borderColor: COLORS.primary,
-  },
-  categoryText: {
-    color: COLORS.muted,
-    fontSize: 11,
-    fontWeight: "700",
-  },
-  selectedCategoryText: {
-    color: COLORS.primary,
-  },
-  icons: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
-  },
-  iconButton: {
-    width: 45,
-    height: 45,
-    borderRadius: 13,
-    backgroundColor: COLORS.background,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  selectedIcon: {
-    backgroundColor: COLORS.primaryLight,
-    borderWidth: 1.5,
-    borderColor: COLORS.primary,
-  },
-  iconText: {
-    fontSize: 22,
-  },
-  reminderRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 22,
-    paddingVertical: 14,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: COLORS.border,
-  },
-  reminderContent: {
-    flex: 1,
-    paddingRight: 12,
-  },
-  reminderTitle: {
-    color: COLORS.text,
-    fontSize: 13,
-    fontWeight: "800",
-  },
-  reminderSubtitle: {
-    color: COLORS.muted,
-    fontSize: 10,
-    marginTop: 4,
-  },
-  timeRow: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  timeInputWrapper: {
-    flex: 1,
-  },
-  saveButton: {
-    backgroundColor: COLORS.primary,
-    paddingVertical: 16,
-    borderRadius: 15,
-    alignItems: "center",
-    marginTop: 25,
-    marginBottom: 15,
-  },
-  saveText: {
-    color: COLORS.white,
-    fontSize: 13,
-    fontWeight: "800",
-  },
-  disabled: {
-    opacity: 0.5,
-  },
-});

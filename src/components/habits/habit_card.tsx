@@ -1,19 +1,19 @@
 import { useState } from "react";
-import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
-import { COLORS } from "../../constants/theme";
+import { Alert, Pressable, Text, View } from "react-native";
+
 import type { Habit } from "../../types/habit.types";
-import { habitCardStyles as styles } from "../../styles/habit.styles";
+import { habitCardStyles, habitCardStatusStyles } from "../../styles/habit";
 
 interface Props {
   habit: Habit;
   streak: number;
-  onToggle: () => void;
+  onToggle: () => void | Promise<void>;
   onEdit: () => void;
   onDelete: () => void;
 }
 
 export function HabitCard({
-  habit,  
+  habit,
   streak,
   onToggle,
   onEdit,
@@ -24,7 +24,9 @@ export function HabitCard({
 
   const handleToggle = async () => {
     if (toggling) return;
+
     setToggling(true);
+
     try {
       await onToggle();
     } catch {
@@ -35,26 +37,33 @@ export function HabitCard({
   };
 
   return (
-    <View style={styles.card}>
-      <View style={[styles.icon, { backgroundColor: `${habit.color}18` }]}>
-        <Text style={styles.emoji}>{habit.icon}</Text>
+    <View style={habitCardStyles.card}>
+      <View
+        style={[habitCardStyles.icon, { backgroundColor: `${habit.color}18` }]}
+      >
+        <Text style={habitCardStyles.emoji}>{habit.icon}</Text>
       </View>
 
       <Pressable
-        style={styles.details}
+        style={habitCardStyles.details}
         onPress={onEdit}
         accessibilityRole="button"
         accessibilityLabel={`Edit ${habit.title}`}
       >
-        <Text style={[styles.title, completed && styles.done]}>
+        <Text
+          style={[habitCardStyles.title, completed && habitCardStyles.done]}
+        >
           {habit.title}
         </Text>
-        <Text style={styles.description}>
+
+        <Text style={habitCardStyles.description}>
           {habit.description || "Keep building your habit"}
         </Text>
-        <View style={styles.streakRow}>
-          <Text style={styles.streakIcon}>🔥</Text>
-          <Text style={styles.streakText}>
+
+        <View style={habitCardStyles.streakRow}>
+          <Text style={habitCardStyles.streakIcon}>🔥</Text>
+
+          <Text style={habitCardStyles.streakText}>
             {streak} {streak === 1 ? "day" : "days"} streak
           </Text>
         </View>
@@ -62,30 +71,36 @@ export function HabitCard({
 
       <Pressable
         style={[
-          styles.check,
-          completed && styles.checked,
-          toggling && styles.disabled,
+          habitCardStatusStyles.check,
+          completed && habitCardStatusStyles.checked,
+          toggling && habitCardStatusStyles.disabled,
         ]}
         onPress={handleToggle}
         disabled={toggling}
         accessibilityRole="checkbox"
-        accessibilityState={{ checked: completed, disabled: toggling }}
-        accessibilityLabel={`Mark ${habit.title} as ${completed ? "incomplete" : "complete"}`}
+        accessibilityState={{
+          checked: completed,
+          disabled: toggling,
+        }}
+        accessibilityLabel={`Mark ${habit.title} as ${
+          completed ? "incomplete" : "complete"
+        }`}
         hitSlop={8}
       >
-        <Text style={styles.checkText}>{completed ? "✓" : ""}</Text>
+        <Text style={habitCardStatusStyles.checkText}>
+          {completed ? "✓" : ""}
+        </Text>
       </Pressable>
 
       <Pressable
-        style={styles.more}
+        style={habitCardStatusStyles.more}
         onPress={onDelete}
         accessibilityRole="button"
         accessibilityLabel={`Delete ${habit.title}`}
         hitSlop={8}
       >
-        <Text style={styles.moreText}>•••</Text>
+        <Text style={habitCardStatusStyles.moreText}>•••</Text>
       </Pressable>
     </View>
   );
 }
-
