@@ -1,3 +1,4 @@
+
 import { Modal, Pressable, ScrollView, Text, View } from "react-native";
 import { progressCardModalStyles as styles } from "../../styles/dashboard_part/progress_card_modal.styles";
 
@@ -58,7 +59,12 @@ export function ProgressCardModal({
             </Text>
 
             <View style={styles.track}>
-              <View style={[styles.fill, { width: `${percentage}%` }]} />
+              <View
+                style={[
+                  styles.fill,
+                  { width: `${percentage}%` },
+                ]}
+              />
             </View>
 
             <View style={styles.statsRow}>
