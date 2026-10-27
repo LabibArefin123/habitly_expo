@@ -1,6 +1,5 @@
 import { Text, View } from "react-native";
 import { achievementListStyles as styles } from "../../styles/analytics_part/achievement_list.styles";
-import { COLORS } from "../../constants/theme";
 
 export interface AchievementItem {
   id: string;
