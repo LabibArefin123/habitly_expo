@@ -101,7 +101,6 @@ export function HabitlyPreloader({
         </View>
 
         <Text style={styles.brandName}>Habitly</Text>
-
         <Text style={styles.tagline}>BUILD BETTER, EVERY DAY</Text>
 
         <View style={styles.loadingSection}>
