@@ -1,7 +1,6 @@
 import { Pressable, Text, View } from "react-native";
-
 import { HabitCard } from "../habits/habit_card";
-import { homeStyles as styles } from "../../styles/home.styles";
+import { homeHabitsStyles as styles } from "../../styles/home_part/home_habits.styles";
 
 import type { Habit } from "../../types/habit.types";
 
@@ -35,7 +34,6 @@ export function HomeHabitsSection({
       <View style={styles.sectionHeader}>
         <View style={styles.headingContainer}>
           <Text style={styles.sectionTitle}>Today's Habits</Text>
-
           <Text style={styles.sectionSubtitle}>
             {completedToday} completed · {remaining} remaining
           </Text>
@@ -55,9 +53,7 @@ export function HomeHabitsSection({
       ) : habits.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyIcon}>🌱</Text>
-
           <Text style={styles.emptyTitle}>Start your journey!</Text>
-
           <Text style={styles.emptyText}>
             Create your first habit and start building a better routine.
           </Text>

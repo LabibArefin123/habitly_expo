@@ -1,5 +1,5 @@
 import { Suspense, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
@@ -10,11 +10,9 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { HomeScreen } from "./src/screens/home_screen";
 import { AnalyticsScreen } from "./src/screens/analytics_screen";
 import { SettingsScreen } from "./src/screens/settings_screen";
-
 import { HabitlyPreloader } from "./src/components/common/habitly_preloader";
-
 import { initializeDatabase } from "./src/database/database";
-import { COLORS } from "./src/constants/theme";
+import { styles } from "./src/styles/main_css.styles";
 
 void SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
@@ -24,7 +22,6 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />
-
       <Suspense fallback={<HabitlyPreloader />}>
         <SQLiteProvider
           databaseName="habitly.db"
@@ -48,9 +45,7 @@ function MainApp() {
     >
       <View style={styles.screen}>
         {activeTab === "home" && <HomeScreen />}
-
         {activeTab === "analytics" && <AnalyticsScreen />}
-
         {activeTab === "settings" && <SettingsScreen />}
       </View>
 
@@ -62,7 +57,6 @@ function MainApp() {
           active={activeTab === "home"}
           onPress={() => setActiveTab("home")}
         />
-
         <TabButton
           label="Analytics"
           icon="stats-chart-outline"
@@ -70,7 +64,6 @@ function MainApp() {
           active={activeTab === "analytics"}
           onPress={() => setActiveTab("analytics")}
         />
-
         <TabButton
           label="Settings"
           icon="settings-outline"
@@ -113,72 +106,12 @@ function TabButton({
       <Ionicons
         name={active ? activeIcon : icon}
         size={21}
-        color={active ? COLORS.primary : COLORS.muted}
+        color={active ? "#6C63FF" : "#94A3B8"}
       />
-
       <Text style={[styles.tabLabel, active && styles.activeTabText]}>
         {label}
       </Text>
-
       {active && <View style={styles.activeIndicator} />}
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  appContainer: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-
-  screen: {
-    flex: 1,
-    minHeight: 0,
-    overflow: "hidden",
-  },
-
-  bottomNavigation: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-around",
-    backgroundColor: COLORS.white,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-    paddingTop: 9,
-    paddingBottom: 7,
-    zIndex: 10,
-    elevation: 8,
-  },
-
-  tabButton: {
-    flex: 1,
-    minHeight: 55,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 7,
-    gap: 4,
-  },
-
-  tabButtonPressed: {
-    opacity: 0.65,
-  },
-
-  tabLabel: {
-    color: COLORS.muted,
-    fontSize: 10,
-    fontWeight: "700",
-  },
-
-  activeTabText: {
-    color: COLORS.primary,
-  },
-
-  activeIndicator: {
-    position: "absolute",
-    bottom: 0,
-    width: 24,
-    height: 3,
-    borderRadius: 5,
-    backgroundColor: COLORS.primary,
-  },
-});

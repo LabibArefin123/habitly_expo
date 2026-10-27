@@ -1,6 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
-
-import { COLORS } from "../../constants/theme";
+import { Text, View } from "react-native";
+import { homeStatisticsStyles as styles } from "../../styles/home_part/home_statistics.styles";
 
 import { ProgressCard } from "../dashboard/progress_card";
 import { StatisticsCard } from "../dashboard/statistics_card";
@@ -68,28 +67,3 @@ export function HomeStatistics({ statistics, weeklyProgress }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 24,
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    color: COLORS.text,
-    fontSize: 19,
-    fontWeight: "800",
-  },
-  sectionSubtitle: {
-    color: COLORS.muted,
-    fontSize: 11,
-    marginTop: 5,
-  },
-  statsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-  },
-});
