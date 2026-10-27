@@ -1,21 +1,24 @@
 import { useEffect, useRef } from "react";
 import { Animated, Easing, Image, Text, View } from "react-native";
+import * as SplashScreen from "expo-splash-screen";
 
 import { preloaderStyles as styles } from "../../styles/common/preloader.styles";
 
-interface Props {
+interface HabitlyPreloaderProps {
   message?: string;
 }
 
 export function HabitlyPreloader({
   message = "Preparing your habits...",
-}: Props) {
+}: HabitlyPreloaderProps) {
   const opacity = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(0.88)).current;
   const rotation = useRef(new Animated.Value(0)).current;
   const progress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    void SplashScreen.hideAsync().catch(() => undefined);
+
     const entrance = Animated.parallel([
       Animated.timing(opacity, {
         toValue: 1,
@@ -90,9 +93,10 @@ export function HabitlyPreloader({
       >
         <View style={styles.logoContainer}>
           <Image
-            source={require("../../../assets/images/habitly-icon.png")}
+            source={require("../../../assets/icon.png")}
             style={styles.logo}
             resizeMode="contain"
+            accessibilityLabel="Habitly app icon"
           />
         </View>
 
@@ -105,14 +109,20 @@ export function HabitlyPreloader({
             <Animated.View
               style={[
                 styles.spinner,
-                { transform: [{ rotate: rotateInterpolation }] },
+                {
+                  transform: [{ rotate: rotateInterpolation }],
+                },
               ]}
             />
 
             <Text style={styles.loadingText}>{message}</Text>
           </View>
 
-          <View style={styles.progressTrack}>
+          <View
+            style={styles.progressTrack}
+            accessibilityRole="progressbar"
+            accessibilityLabel="App loading"
+          >
             <Animated.View
               style={[styles.progressFill, { width: progressWidth }]}
             />

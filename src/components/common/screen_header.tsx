@@ -1,12 +1,15 @@
 import { Pressable, Text, View } from "react-native";
-import { screenHeaderStyles as styles } from "../../styles/common.styles";
+import { Ionicons } from "@expo/vector-icons";
 
-interface Props {
+import { screenHeaderStyles as styles } from "../../styles/common/screen_header.styles";
+
+interface ScreenHeaderProps {
   title: string;
   subtitle?: string;
   eyebrow?: string;
-  actionIcon?: string;
+  actionIcon?: keyof typeof Ionicons.glyphMap;
   onAction?: () => void;
+  actionLabel?: string;
 }
 
 export function ScreenHeader({
@@ -15,26 +18,36 @@ export function ScreenHeader({
   eyebrow,
   actionIcon,
   onAction,
-}: Props) {
+  actionLabel = "Header action",
+}: ScreenHeaderProps) {
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>
-        {eyebrow && <Text style={styles.eyebrow}>{eyebrow}</Text>}
+        {eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}
 
         <Text style={styles.title}>{title}</Text>
 
-        {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+        {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
       </View>
 
-      {actionIcon && onAction && (
+      {actionIcon && onAction ? (
         <Pressable
-          style={styles.actionButton}
+          style={({ pressed }) => [
+            styles.actionButton,
+            pressed && styles.actionButtonPressed,
+          ]}
           onPress={onAction}
           accessibilityRole="button"
+          accessibilityLabel={actionLabel}
+          hitSlop={8}
         >
-          <Text style={styles.actionText}>{actionIcon}</Text>
+          <Ionicons
+            name={actionIcon}
+            size={21}
+            color={styles.actionIcon.color}
+          />
         </Pressable>
-      )}
+      ) : null}
     </View>
   );
 }

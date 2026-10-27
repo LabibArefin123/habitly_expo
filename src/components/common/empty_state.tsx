@@ -1,7 +1,8 @@
 import { Pressable, Text, View } from "react-native";
-import { emptyStateStyles as styles } from "../../styles/common.styles";
 
-interface Props {
+import { emptyStateStyles as styles } from "../../styles/common/empty_state.styles";
+
+interface EmptyStateProps {
   title: string;
   description: string;
   icon?: string;
@@ -15,24 +16,30 @@ export function EmptyState({
   icon = "🌱",
   buttonText,
   onPress,
-}: Props) {
+}: EmptyStateProps) {
   return (
-    <View style={styles.container}>
-      <Text style={styles.icon}>{icon}</Text>
+    <View style={styles.container} accessible accessibilityRole="summary">
+      <View style={styles.iconContainer}>
+        <Text style={styles.icon}>{icon}</Text>
+      </View>
 
       <Text style={styles.title}>{title}</Text>
 
       <Text style={styles.description}>{description}</Text>
 
-      {buttonText && onPress && (
+      {buttonText && onPress ? (
         <Pressable
-          style={styles.button}
+          style={({ pressed }) => [
+            styles.button,
+            pressed && styles.buttonPressed,
+          ]}
           onPress={onPress}
           accessibilityRole="button"
+          accessibilityLabel={buttonText}
         >
           <Text style={styles.buttonText}>{buttonText}</Text>
         </Pressable>
-      )}
+      ) : null}
     </View>
   );
 }

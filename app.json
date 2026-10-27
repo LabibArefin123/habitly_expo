@@ -12,15 +12,15 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#F4FAF6",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/habitly-icon.png",
+        "backgroundImage": "./assets/images/habitly-icon.png",
+        "monochromeImage": "./assets/images/habitly-icon.png"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.labibarefn123.habitly"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/images/habitly-icon.png"
     },
     "plugins": [
       "expo-sqlite",
