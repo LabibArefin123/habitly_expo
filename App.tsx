@@ -1,67 +1,103 @@
-import { useState } from "react";
-import { StatusBar } from "expo-status-bar";
-import { SQLiteProvider } from "expo-sqlite";
+import { Suspense, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+
+import { StatusBar } from "expo-status-bar";
+import { Ionicons } from "@expo/vector-icons";
+import { SQLiteProvider } from "expo-sqlite";
+import * as SplashScreen from "expo-splash-screen";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 import { HomeScreen } from "./src/screens/home_screen";
 import { AnalyticsScreen } from "./src/screens/analytics_screen";
+import { SettingsScreen } from "./src/screens/settings_screen";
+
+import { HabitlyPreloader } from "./src/components/common/habitly_preloader";
+
 import { initializeDatabase } from "./src/database/database";
 import { COLORS } from "./src/constants/theme";
 
-type TabName = "home" | "analytics";
+void SplashScreen.preventAutoHideAsync().catch(() => undefined);
+
+type TabName = "home" | "analytics" | "settings";
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<TabName>("home");
-
-  const navigateTo = (tab: TabName) => {
-    setActiveTab(tab);
-  };
-
   return (
     <SafeAreaProvider>
-      <SQLiteProvider databaseName="habitly.db" onInit={initializeDatabase}>
-        <SafeAreaView
-          style={styles.appContainer}
-          edges={["top", "left", "right", "bottom"]}
+      <StatusBar style="dark" />
+
+      <Suspense fallback={<HabitlyPreloader />}>
+        <SQLiteProvider
+          databaseName="habitly.db"
+          onInit={initializeDatabase}
+          useSuspense
         >
-          <StatusBar style="dark" />
-
-          {/* Screen Content */}
-          <View style={styles.screen}>
-            {activeTab === "home" ? <HomeScreen /> : <AnalyticsScreen />}
-          </View>
-
-          {/* Fixed Bottom Navigation */}
-          <View style={styles.bottomNavigation} pointerEvents="auto">
-            <TabButton
-              label="Home"
-              icon="⌂"
-              active={activeTab === "home"}
-              onPress={() => navigateTo("home")}
-            />
-
-            <TabButton
-              label="Analytics"
-              icon="▥"
-              active={activeTab === "analytics"}
-              onPress={() => navigateTo("analytics")}
-            />
-          </View>
-        </SafeAreaView>
-      </SQLiteProvider>
+          <MainApp />
+        </SQLiteProvider>
+      </Suspense>
     </SafeAreaProvider>
+  );
+}
+
+function MainApp() {
+  const [activeTab, setActiveTab] = useState<TabName>("home");
+
+  return (
+    <SafeAreaView
+      style={styles.appContainer}
+      edges={["top", "left", "right", "bottom"]}
+    >
+      <View style={styles.screen}>
+        {activeTab === "home" && <HomeScreen />}
+
+        {activeTab === "analytics" && <AnalyticsScreen />}
+
+        {activeTab === "settings" && <SettingsScreen />}
+      </View>
+
+      <View style={styles.bottomNavigation}>
+        <TabButton
+          label="Home"
+          icon="home-outline"
+          activeIcon="home"
+          active={activeTab === "home"}
+          onPress={() => setActiveTab("home")}
+        />
+
+        <TabButton
+          label="Analytics"
+          icon="stats-chart-outline"
+          activeIcon="stats-chart"
+          active={activeTab === "analytics"}
+          onPress={() => setActiveTab("analytics")}
+        />
+
+        <TabButton
+          label="Settings"
+          icon="settings-outline"
+          activeIcon="settings"
+          active={activeTab === "settings"}
+          onPress={() => setActiveTab("settings")}
+        />
+      </View>
+    </SafeAreaView>
   );
 }
 
 interface TabButtonProps {
   label: string;
-  icon: string;
+  icon: keyof typeof Ionicons.glyphMap;
+  activeIcon: keyof typeof Ionicons.glyphMap;
   active: boolean;
   onPress: () => void;
 }
 
-function TabButton({ label, icon, active, onPress }: TabButtonProps) {
+function TabButton({
+  label,
+  icon,
+  activeIcon,
+  active,
+  onPress,
+}: TabButtonProps) {
   return (
     <Pressable
       style={({ pressed }) => [
@@ -74,9 +110,11 @@ function TabButton({ label, icon, active, onPress }: TabButtonProps) {
       accessibilityLabel={`Navigate to ${label}`}
       accessibilityState={{ selected: active }}
     >
-      <Text style={[styles.tabIcon, active && styles.activeTabText]}>
-        {icon}
-      </Text>
+      <Ionicons
+        name={active ? activeIcon : icon}
+        size={21}
+        color={active ? COLORS.primary : COLORS.muted}
+      />
 
       <Text style={[styles.tabLabel, active && styles.activeTabText]}>
         {label}
@@ -96,47 +134,33 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     minHeight: 0,
-    zIndex: 0,
     overflow: "hidden",
   },
 
   bottomNavigation: {
-    position: "relative",
-    zIndex: 100,
-    elevation: 30,
-
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-around",
-
     backgroundColor: COLORS.white,
-
     borderTopWidth: 1,
     borderTopColor: COLORS.border,
-
     paddingTop: 9,
     paddingBottom: 7,
+    zIndex: 10,
+    elevation: 8,
   },
 
   tabButton: {
     flex: 1,
     minHeight: 55,
-
     alignItems: "center",
     justifyContent: "center",
-
     paddingVertical: 7,
-    gap: 3,
+    gap: 4,
   },
 
   tabButtonPressed: {
     opacity: 0.65,
-  },
-
-  tabIcon: {
-    color: COLORS.muted,
-    fontSize: 23,
-    fontWeight: "700",
   },
 
   tabLabel: {
@@ -152,10 +176,8 @@ const styles = StyleSheet.create({
   activeIndicator: {
     position: "absolute",
     bottom: 0,
-
     width: 24,
     height: 3,
-
     borderRadius: 5,
     backgroundColor: COLORS.primary,
   },
